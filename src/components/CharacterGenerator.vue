@@ -42,7 +42,7 @@ const races = [
 const hoveredRace = ref(null);
 
 function selectRace(race) {
-  character.value.race = race;
+  character.value.race = race.name;
 }
 
 const classes = [
@@ -252,7 +252,7 @@ function getTraitIcon(trait) {
                   v-for="race in races"
                   :key="race.name"
                   class="race-tile"
-                  @click="selectRace(race.name)"
+                  @click="selectRace(race)"
                   @mouseover="hoveredRace = race.description"
                   @mouseleave="hoveredRace = null"
                   :class="{ selected: character.race === race.name }">
