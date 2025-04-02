@@ -1,11 +1,6 @@
 <script setup>
 import {onMounted, ref} from 'vue';
 import {useI18n} from 'vue-i18n';
-
-onMounted(() => {
-  document.body.style.backgroundColor = 'rgba(235,255,221,0.85)';
-});
-
 import humanNames from '../assets/names/humanNames.js';
 import elfNames from '../assets/names/elfNames.js';
 import dwarfNames from '../assets/names/dwarfNames.js';
@@ -16,17 +11,39 @@ import tieflingNames from '../assets/names/tieflingNames.js';
 import halfOrcNames from "../assets/names/halfOrcNames.js";
 import halfElfNames from "../assets/names/halfElfNames.js";
 
+import humanIcons from '../assets/icons/human.png';
+import elfIcons from '../assets/icons/elf.png';
+import dwarfIcons from '../assets/icons/dwarf.png';
+import halflingIcons from '../assets/icons/halfling.png';
+import dragonbornIcons from '../assets/icons/dragonborn.png';
+import gnomeIcons from '../assets/icons/gnome.png';
+import tieflingIcons from '../assets/icons/tiefling.png';
+import halfOrcIcons from '../assets/icons/halforc.png';
+import halfElfIcons from '../assets/icons/halfelf.png';
+
+onMounted(() => {
+  document.body.style.backgroundColor = 'rgba(235,255,221,0.85)';
+});
+
+const {t} = useI18n();
+
 const races = [
-  'Human',
-  'Elf',
-  'Dwarf',
-  'Halfling',
-  'Dragonborn',
-  'Gnome',
-  'HalfElf',
-  'HalfOrc',
-  'Tiefling'
+  { name: 'Human', icon: humanIcons, description: t('human-desc') },
+  { name: 'Elf', icon: elfIcons, description: t('elf-desc') },
+  { name: 'Dwarf', icon: dwarfIcons, description: t('dwarf-desc')  },
+  { name: 'Halfling', icon: halflingIcons, description: t('halfling-desc') },
+  { name: 'Dragonborn', icon: dragonbornIcons, description: t('dragonborn-desc') },
+  { name: 'Gnome', icon: gnomeIcons, description: t('gnome-desc') },
+  { name: 'HalfElf', icon: halfElfIcons, description: t('halfelf-desc') },
+  { name: 'HalfOrc', icon: halfOrcIcons, description: t('halforc-desc') },
+  { name: 'Tiefling', icon: tieflingIcons, description: t('tiefling-desc') }
 ];
+
+const hoveredRace = ref(null);
+
+function selectRace(race) {
+  character.value.race = race;
+}
 
 const classes = [
   'Barbarian',
@@ -112,8 +129,6 @@ const character = ref({
   personality: []
 });
 
-const {t} = useI18n();
-
 const fixedRace = ref("");
 const fixedGender = ref("");
 const fixedBackground = ref("");
@@ -154,10 +169,10 @@ function getRandomName(race, gender) {
   if (gender === "") {
     race = raceNamesMap[Math.floor(Math.random() * races.length)];
   }
-  console.log('Selected race:', race);
+  console.log('Selected race:', race.name);
   console.log('Selected gender:', gender);
 
-  const names = raceNamesMap[race] || {};
+  const names = raceNamesMap[race.name] || {};
   let genderNames = [];
 
   if (gender === "nonbinary") {
@@ -211,8 +226,7 @@ function generateRandomPersonalityTraits(selectedTraits) {
 
 function getTraitIcon(trait) {
   try {
-    const iconPath = new URL(`../assets/icons/${trait.toLowerCase()}.png`, import.meta.url).href;
-    return iconPath;
+    return new URL(`../assets/icons/${trait.toLowerCase()}.png`, import.meta.url).href;
   } catch (e) {
     console.error(`Icon not found for trait: ${trait}`, e);
     return '';
@@ -231,10 +245,23 @@ function getTraitIcon(trait) {
       <tr>
         <td><label for="race">{{ t('selectRace') }}</label></td>
         <td>
-          <select v-model="fixedRace" id="race">
-            <option value="">Random</option>
-            <option v-for="race in races" :key="race" :value="race">{{ t(race.toLowerCase()) }}</option>
-          </select>
+          <div class="race-selection">
+            <h2>Select Your Race</h2>
+            <div class="race-grid">
+              <div
+                  v-for="race in races"
+                  :key="race.name"
+                  class="race-tile"
+                  @click="selectRace(race.name)"
+                  @mouseover="hoveredRace = race.description"
+                  @mouseleave="hoveredRace = null"
+                  :class="{ selected: character.race === race.name }">
+                <img :src="race.icon" :alt="race.name" class="race-icon" />
+                <p>{{ t(race.name.toLowerCase()) }}</p>
+              </div>
+            </div>
+            <p v-if="hoveredRace" class="race-description">{{ hoveredRace }}</p>
+          </div>
         </td>
       </tr>
 
@@ -304,7 +331,7 @@ function getTraitIcon(trait) {
 
     <div v-if="character.name">
       <h2>{{ character.name }}</h2>
-      <p>{{ t('race') }}: {{ t(character.race.toLowerCase()) }}</p>
+      <p>{{ t('race') }}: {{ t(character.race.name.toLowerCase()) }}</p>
       <p>{{ t('class') }}: {{ t(character.class.toLowerCase()) }}</p>
       <p>{{ t('background') }}: {{ t(character.background.toLowerCase()) }}</p>
       <p>{{ t('gender') }}: {{ t(character.gender.toLowerCase()) }}</p>
@@ -490,5 +517,55 @@ button:active {
   font-size: 18px;
   color: #555;
   line-height: 1.5;
+}
+
+.race-selection {
+  text-align: center;
+}
+
+.race-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(117px, 1fr));
+  gap: 15px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.race-tile {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.race-tile p {
+  word-break: break-word;
+  white-space: normal;
+}
+
+
+.race-tile:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.selected {
+  border: 2px solid #4CAF50;
+}
+
+.race-icon {
+  width: 80px;
+  height: 150px;
+  object-fit: contain;
+}
+
+.race-description {
+  margin-top: 10px;
+  font-size: 16px;
+  color: #555;
+  font-style: italic;
 }
 </style>

@@ -87,6 +87,15 @@ const messages = {
         "nature-lover": 'Nature-lover',
         selectPersonality: 'Select Personality Trait:',
         noPersonalitySelected: 'No personality trait selected',
+        'human-desc': 'Versatile and ambitious',
+        'elf-desc': 'Graceful and long-lived',
+        'dwarf-desc': 'Sturdy and strong',
+        'halfling-desc': 'Cheerful and nimble',
+        'dragonborn-desc': 'Proud and draconic',
+        'gnome-desc': 'Inventive and energetic',
+        'halfelf-desc': 'Adaptable and charming',
+        'halforc-desc': 'Fierce and resilient',
+        'tiefling-desc': 'Mysterious and charismatic'
     },
     ru: {
         race: 'Раса',
@@ -174,6 +183,15 @@ const messages = {
         "nature-lover": 'Любитель природы',
         selectPersonality: 'Выберите черту характера:',
         noPersonalitySelected: 'Черта характера не выбрана',
+        'human-desc': 'Универсальные и амбициозные',
+        'elf-desc': 'Грациозные и долгоживущие',
+        'dwarf-desc': 'Прочные и сильные',
+        'halfling-desc': 'Веселые и ловкие',
+        'dragonborn-desc': 'Гордые и драконьи',
+        'gnome-desc': 'Изобретательные и энергичные',
+        'halfelf-desc': 'Адаптируемые и обаятельные',
+        'halforc-desc': 'Яростные и выносливые',
+        'tiefling-desc': 'Таинственные и харизматичные'
     }
 };
 
