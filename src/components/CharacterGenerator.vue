@@ -21,6 +21,19 @@ import tieflingIcons from '../assets/icons/tiefling.png';
 import halfOrcIcons from '../assets/icons/halforc.png';
 import halfElfIcons from '../assets/icons/halfelf.png';
 
+import barbarianIcons from '../assets/icons/barbarian.png';
+import bardIcons from '../assets/icons/bard.png';
+import clericIcons from '../assets/icons/cleric.png';
+import druidIcons from '../assets/icons/druid.png';
+import fighterIcons from '../assets/icons/fighter.png';
+import monkIcons from '../assets/icons/monk.png';
+import paladinIcons from '../assets/icons/paladin.png';
+import rangerIcons from '../assets/icons/ranger.png';
+import rogueIcons from '../assets/icons/rogue.png';
+import sorcererIcons from '../assets/icons/sorcerer.png';
+import warlockIcons from '../assets/icons/warlock.png';
+import wizardIcons from '../assets/icons/wizard.png';
+
 onMounted(() => {
   document.body.style.backgroundColor = 'rgba(235,255,221,0.85)';
 });
@@ -41,23 +54,19 @@ const races = [
 
 const hoveredRace = ref(null);
 
-function selectRace(race) {
-  character.value.race = race.name;
-}
-
 const classes = [
-  'Barbarian',
-  'Bard',
-  'Cleric',
-  'Druid',
-  'Fighter',
-  'Monk',
-  'Paladin',
-  'Ranger',
-  'Rogue',
-  'Sorcerer',
-  'Warlock',
-  'Wizard'
+  {name: 'Barbarian', icon: barbarianIcons},
+  {name: 'Bard', icon: bardIcons},
+  {name: 'Cleric', icon: clericIcons},
+  {name: 'Druid', icon: druidIcons},
+  {name: 'Fighter', icon: fighterIcons},
+  {name: 'Monk', icon: monkIcons},
+  {name: 'Paladin', icon: paladinIcons},
+  {name: 'Ranger', icon: rangerIcons},
+  {name: 'Rogue', icon: rogueIcons},
+  {name : 'Sorcerer', icon: sorcererIcons},
+  {name: 'Warlock', icon: warlockIcons},
+  {name: 'Wizard', icon: wizardIcons}
 ];
 
 const backgrounds = [
@@ -129,18 +138,63 @@ const character = ref({
   personality: []
 });
 
+
 const fixedRace = ref("");
 const fixedGender = ref("");
 const fixedBackground = ref("");
 const fixedClass = ref("");
-
 const fixedPersonality = ref([]);
 
+function selectRace(charRace) {
+  if (character.value.race === charRace) {
+    character.value.race = "";
+  } else {
+    character.value.race = charRace;
+  }
+}
+
+function selectClass(charClass) {
+  if (character.value.class === charClass) {
+    character.value.class = "";
+  } else {
+    character.value.class = charClass;
+  }
+}
+
+function getRandomName(race, gender) {
+  if (gender === "") {
+    gender = genders[Math.floor(Math.random() * genders.length)];
+  }
+
+  if (race === "") {
+    race = raceNamesMap[Math.floor(Math.random() * races.length)];
+  }
+  console.log('Selected race:', race);
+  console.log('Selected gender:', gender);
+
+  const names = raceNamesMap[race] || {};
+  let genderNames = [];
+
+  if (gender === "nonbinary") {
+    for (const g in names) {
+      genderNames = genderNames.concat(names[g]);
+    }
+  } else {
+    genderNames = names[gender] || [];
+  }
+
+  if (genderNames.length === 0) {
+    return "Random Name";
+  }
+
+  return genderNames[Math.floor(Math.random() * genderNames.length)];
+}
+
 function generateNewCharacter() {
-  const race = fixedRace.value || races[Math.floor(Math.random() * races.length)];
+  const race = character.value.race.name || fixedRace.value || races[Math.floor(Math.random() * races.length)].name;
   const gender = fixedGender.value || genders[Math.floor(Math.random() * genders.length)];
   const background = fixedBackground.value || backgrounds[Math.floor(Math.random() * backgrounds.length)];
-  const charClass = fixedClass.value || classes[Math.floor(Math.random() * classes.length)];
+  const charClass = character.value.class.name || fixedClass.value || classes[Math.floor(Math.random() * classes.length)].name;
 
   let personality = [];
   if (fixedPersonality.value.length < 3) {
@@ -160,37 +214,6 @@ function generateNewCharacter() {
     personality: personality
   };
 }
-
-function getRandomName(race, gender) {
-  if (gender === "") {
-    gender = raceNamesMap[Math.floor(Math.random() * races.length)];
-  }
-
-  if (gender === "") {
-    race = raceNamesMap[Math.floor(Math.random() * races.length)];
-  }
-  console.log('Selected race:', race.name);
-  console.log('Selected gender:', gender);
-
-  const names = raceNamesMap[race.name] || {};
-  let genderNames = [];
-
-  if (gender === "nonbinary") {
-    for (const g in names) {
-      genderNames = genderNames.concat(names[g]);
-    }
-  } else {
-    genderNames = names[gender] || [];
-  }
-
-  if (genderNames.length === 0) {
-    return "Random Name";
-  }
-
-  return genderNames[Math.floor(Math.random() * genderNames.length)];
-}
-
-
 function isTraitIncompatible(trait) {
   const traitLower = trait.toLowerCase();
   for (const selectedTrait of fixedPersonality.value) {
@@ -252,10 +275,11 @@ function getTraitIcon(trait) {
                   v-for="race in races"
                   :key="race.name"
                   class="race-tile"
-                  @click="selectRace(race)"
-                  @mouseover="hoveredRace = race.description"
-                  @mouseleave="hoveredRace = null"
-                  :class="{ selected: character.race === race.name }">
+                  @click="selectRace(race.name); fixedRace = race.name"
+                  :class="{ selected: character.race === race.name }"
+                  :title="t(race.name.toLowerCase())"
+                  :disabled="character.race !== '' && character.race !== race.name"
+              >
                 <img :src="race.icon" :alt="race.name" class="race-icon" />
                 <p>{{ t(race.name.toLowerCase()) }}</p>
               </div>
@@ -292,10 +316,21 @@ function getTraitIcon(trait) {
       <tr>
         <td><label for="class">{{ t('selectClass') }}</label></td>
         <td>
-          <select v-model="fixedClass" id="class">
-            <option value="">Random</option>
-            <option v-for="charClass in classes" :key="charClass" :value="charClass">{{ t(charClass.toLowerCase()) }}</option>
-          </select>
+          <div class="class-selection">
+            <h2>Select Your Class</h2>
+            <div class="class-grid">
+              <div
+                  v-for="classs in classes"
+                  :key="classs.name"
+                  class="class-tile"
+                  @click="selectClass(classs.name); fixedClass = classs.name"
+                  :class="{ selected: character.class === classs.name }"
+                  :disabled="character.class !== ''">
+                <img :src="classs.icon" :alt="classs.name" class="class-icon" />
+                <p>{{ t(classs.name.toLowerCase()) }}</p>
+              </div>
+            </div>
+          </div>
         </td>
       </tr>
 
@@ -331,7 +366,7 @@ function getTraitIcon(trait) {
 
     <div v-if="character.name">
       <h2>{{ character.name }}</h2>
-      <p>{{ t('race') }}: {{ t(character.race.name.toLowerCase()) }}</p>
+      <p>{{ t('race') }}: {{ t(character.race.toLowerCase()) }}</p>
       <p>{{ t('class') }}: {{ t(character.class.toLowerCase()) }}</p>
       <p>{{ t('background') }}: {{ t(character.background.toLowerCase()) }}</p>
       <p>{{ t('gender') }}: {{ t(character.gender.toLowerCase()) }}</p>
@@ -519,11 +554,11 @@ button:active {
   line-height: 1.5;
 }
 
-.race-selection {
+.race-selection, .class-selection {
   text-align: center;
 }
 
-.race-grid {
+.race-grid, .class-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(117px, 1fr));
   gap: 15px;
@@ -531,7 +566,7 @@ button:active {
   margin: 20px 0;
 }
 
-.race-tile {
+.race-tile, .class-tile {
   background: #ffffff;
   border-radius: 10px;
   padding: 10px;
@@ -546,8 +581,13 @@ button:active {
   white-space: normal;
 }
 
+.class-tile p {
+  word-break: break-word;
+  white-space: normal;
+}
 
-.race-tile:hover {
+
+.race-tile:hover, .class-tile:hover {
   transform: scale(1.05);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
@@ -556,7 +596,7 @@ button:active {
   border: 2px solid #4CAF50;
 }
 
-.race-icon {
+.race-icon, .class-icon {
   width: 80px;
   height: 150px;
   object-fit: contain;
